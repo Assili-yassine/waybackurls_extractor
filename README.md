@@ -5,17 +5,20 @@ A minimal command-line tool to pull archived URLs for a domain from the [Wayback
 ## Features
 
 - 🔎 Queries the Wayback Machine's CDX/timemap API for a given domain
-- 🌐 Includes subdomains by default (prefix match), or restrict to the exact domain
+- 🌐 Includes subdomains by default (prefix match), or restricts to the exact domain
 - 📄 Export results as `txt`, `csv`, or `json`
 - 🧅 Optional routing through Tor (`-p` flag, expects a local Tor SOCKS5 proxy on `127.0.0.1:9050`)
 - 🔁 Automatic retry with exponential backoff on HTTP 429 (rate limiting)
+- ⚡ Install once and run from anywhere as `wayback`
+
+---
 
 ## Installation
 
 Clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/wayback-extractor.git
+git clone https://github.com/Assili-yassine/wayback-extractor.git
 cd wayback-extractor
 ```
 
@@ -25,9 +28,33 @@ Install dependencies (only needed if you plan to use the `-p` Tor proxy option):
 pip install -r requirements.txt
 ```
 
-No external dependencies are required for normal (non-Tor) usage — the script only relies on the Python standard library in that case.
+### Install as a system command (recommended)
+
+Rename the script, make it executable, and move it into your system PATH:
+
+```bash
+mv wayback_extractor.py wayback
+chmod +x wayback
+sudo mv wayback /usr/local/bin/
+```
+
+Now you can run it from anywhere:
+
+```bash
+wayback example.com
+```
+
+> **Note:** If you modify the script later, simply replace the copy in `/usr/local/bin/` with the updated version.
+
+---
 
 ## Usage
+
+```bash
+wayback <domain> [options]
+```
+
+If you prefer not to install it system-wide, you can also run it directly:
 
 ```bash
 python3 wayback_extractor.py <domain> [options]
@@ -36,66 +63,94 @@ python3 wayback_extractor.py <domain> [options]
 ### Options
 
 | Flag | Description | Default |
-|---|---|---|
+|------|-------------|---------|
 | `domain` | Target domain (required) | — |
 | `-f`, `--format` | Output format: `txt`, `csv`, or `json` | `txt` |
 | `-o`, `--output` | Save output to a file instead of printing to stdout | — |
 | `-l`, `--limit` | Maximum number of results to fetch | `10000` |
-| `--no-subdomains` | Exclude subdomains, match the exact domain only | off |
-| `-p` | Route requests through a local Tor SOCKS5 proxy (`127.0.0.1:9050`) | off |
+| `--no-subdomains` | Exclude subdomains, match the exact domain only | disabled |
+| `-p` | Route requests through a local Tor SOCKS5 proxy (`127.0.0.1:9050`) | disabled |
 
-### Examples
+---
 
-Fetch all archived URLs for a domain (plain text to stdout):
+## Examples
+
+Fetch all archived URLs:
 
 ```bash
-python3 wayback_extractor.py example.com
+wayback example.com
 ```
 
 Save results as CSV, excluding subdomains:
 
 ```bash
-python3 wayback_extractor.py example.com -f csv -o results.csv --no-subdomains
+wayback example.com -f csv -o results.csv --no-subdomains
 ```
 
-Export as JSON, limiting to 500 records:
+Export as JSON with a maximum of 500 records:
 
 ```bash
-python3 wayback_extractor.py example.com -f json -l 500 -o results.json
+wayback example.com -f json -l 500 -o results.json
 ```
 
 Route requests through Tor:
 
 ```bash
-python3 wayback_extractor.py example.com -p
+wayback example.com -p
 ```
 
-> **Note:** the `-p` option assumes Tor is already running locally and exposing a SOCKS5 proxy on port `9050` (the default for the Tor daemon / Tor Browser). It does not start Tor for you.
+If running without installation:
 
-## Output fields
+```bash
+python3 wayback_extractor.py example.com
+```
+
+> **Note:** The `-p` option assumes Tor is already running locally and exposing a SOCKS5 proxy on `127.0.0.1:9050`. The tool does not start Tor automatically.
+
+---
+
+## Output Fields
 
 Each record returned by the CDX API includes:
 
-- `original` — the archived URL
-- `mimetype` — content type at capture time
-- `timestamp` — first capture timestamp
-- `endtimestamp` — most recent capture timestamp
-- `groupcount` — number of captures grouped
-- `uniqcount` — number of unique captures
+| Field | Description |
+|-------|-------------|
+| `original` | Archived URL |
+| `mimetype` | Content type at capture time |
+| `timestamp` | First capture timestamp |
+| `endtimestamp` | Most recent capture timestamp |
+| `groupcount` | Number of grouped captures |
+| `uniqcount` | Number of unique captures |
+
+---
 
 ## Requirements
 
 - Python 3.7+
-- [`PySocks`](https://pypi.org/project/PySocks/) (only required for the `-p` Tor option)
+- `PySocks` *(only required when using the `-p` option)*
 
-## Use cases
+---
 
-This tool is commonly used for reconnaissance during authorized security testing and OSINT research, such as discovering historical endpoints, forgotten subdomains, or old parameters that may still be relevant to an attack surface review. **Only use it against domains you own or are explicitly authorized to test.**
+## Use Cases
+
+Wayback Extractor is useful during authorized security testing and OSINT research for:
+
+- Finding historical endpoints
+- Discovering forgotten files
+- Recovering old API paths
+- Identifying deprecated parameters
+- Enumerating archived subdomains
+
+**Only use this tool against domains you own or are explicitly authorized to test.**
+
+---
 
 ## License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Disclaimer
 
-This tool queries publicly available data from the Wayback Machine. Use responsibly and in accordance with the target's terms of service and applicable law. The author(s) assume no liability for misuse.
+This tool queries publicly available data from the Internet Archive's Wayback Machine. Users are responsible for ensuring their use complies with applicable laws, regulations, and the target organization's policies. The author assumes no liability for misuse.
