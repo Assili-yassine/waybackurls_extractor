@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Output files
+*.csv
+*.json
+*.txt
+!requirements.txt
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
